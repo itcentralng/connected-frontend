@@ -44,7 +44,9 @@ const LoginPage = () => {
         organization.password === formData.password &&
         organization.email === formData.email.toLowerCase()
       ) {
-        dispatch(login());
+        delete organization.password;
+        console.log(organization);
+        dispatch(login(organization));
         navigate("/addfile");
       } else {
         console.log(`organization info: ${organization.password}`);

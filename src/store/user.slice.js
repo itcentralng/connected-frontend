@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+const initialState = JSON.parse(localStorage.getItem("userState")) || {
   isAuth: false,
   user: null,
 };
@@ -13,6 +13,7 @@ export const userSlice = createSlice({
       state.isAuth = true;
       state.user = action.payload;
       console.log(action.payload);
+      localStorage.setItem("userState", JSON.stringify(state));
     },
     logout: (state) => {
       state.isAuth = false;
