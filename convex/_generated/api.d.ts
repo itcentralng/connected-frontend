@@ -14,9 +14,8 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as createOrganization from "../createOrganization.js";
 import type * as defineSchema from "../defineSchema.js";
-import type * as organizations from "../organizations.js";
+import type * as organization from "../organization.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -27,9 +26,8 @@ import type * as organizations from "../organizations.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  createOrganization: typeof createOrganization;
   defineSchema: typeof defineSchema;
-  organizations: typeof organizations;
+  organization: typeof organization;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

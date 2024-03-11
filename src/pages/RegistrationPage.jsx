@@ -24,9 +24,7 @@ const RegistrationPage = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showSnack, setShowSnack] = useState("");
-  const registerOrganization = useMutation(
-    api.createOrganization.createOrganization
-  );
+  const registerOrganization = useMutation(api.organization.createOrganization);
 
   const handleFormChange = (event) => {
     setFormData((prev) => ({

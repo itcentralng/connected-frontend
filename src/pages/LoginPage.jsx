@@ -12,13 +12,16 @@ import {
   Typography,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { api } from "../../convex/_generated/api";
+import { useMutation } from "convex/react";
 import { useDispatch } from "react-redux";
 import { login } from "../store/user.slice";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const loginOrganization = useMutation(api.organization.getOrganizations);
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState();
 
   const handleFormChange = (event) => {
     setFormData((prev) => ({
@@ -27,28 +30,28 @@ const LoginPage = () => {
     }));
   };
 
-  const handleLogin = (event) => {
-    event.preventDefault();
-    console.log(formData);
-    if (formData?.password && formData.email) {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/organization`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify(formData),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data?.error) {
-            console.log(data);
-            dispatch(login(data));
-            navigate("/addfile");
-          }
-        });
-    } else {
-      alert("All fields are required");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const organization = await loginOrganization({
+        email: formData.email.toLowerCase(),
+        password: formData.password,
+      });
+      JSON.stringify(organization);
+
+      if (
+        organization &&
+        organization.password === formData.password &&
+        organization.email === formData.email.toLowerCase()
+      ) {
+        dispatch(login());
+        navigate("/addfile");
+      } else {
+        console.log(`organization info: ${organization.password}`);
+        alert("Invalid email or password");
+      }
+    } catch (error) {
+      alert("Invalid email or password");
     }
   };
 
