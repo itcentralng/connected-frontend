@@ -12,13 +12,23 @@ import {
 } from "@mui/material";
 import SimpleSnackbar from "../components/snackbar";
 import { useSelector } from "react-redux";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+// import weaviate, { ApiKey } from "weaviate-ts-client";
 
 export default function AddFiles() {
-  const [file, setFile] = React.useState("");
+  const [file, setFile] = React.useState(null);
   const [shortcode, setShortCode] = React.useState("");
-  const [addedFile, setAddedFile] = React.useState();
+  const [addedFile, setAddedFile] = React.useState(false);
   const { user } = useSelector((state) => state.user);
+  const addFile = useMutation(api.files.uploadFiles);
 
+  // const client = weaviate.client({
+  //   scheme: "https",
+  //   host: import.meta.env.VITE_WEAVIATE_CLUSTER_URL, // Replace with your endpoint
+  //   apiKey: new ApiKey(import.meta.env.VITE_WEAVIATE_API_KEY), // Replace w/ your Weaviate instance API key
+  //   headers: { "X-OpenAI-Api-Key": import.meta.env.VITE_OPENAI_API_KEY }, // Replace with your inference API key
+  // });
   const handleFileChange = async (e) => {
     setFile(e.target.files[0]);
   };
@@ -30,23 +40,41 @@ export default function AddFiles() {
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!file) return;
     if (file && shortcode) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("shortcode", shortcode);
-      fetch(
-        `${import.meta.env.VITE_APP_API_URL}/organization/${
-          user.name
-        }/uploadfile`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => setAddedFile(data));
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("shortcode", shortcode);
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onload = async () => {
+          const fileContent = fileReader.result.split(",")[1];
+          await addFile({
+            file: fileContent,
+            shortcode: shortcode,
+            organizationName: user.name,
+            organizationId: user._id,
+          });
+          fetch(
+            `${import.meta.env.VITE_APP_API_URL}/organization/${
+              user.name
+            }/uploadfile`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => setAddedFile(data));
+        };
+        console.log("File uploaded successfully");
+        setAddedFile(true);
+      } catch (error) {
+        console.error("Failed to add file", error);
+      }
     }
   };
 

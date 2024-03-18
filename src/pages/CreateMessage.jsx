@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -7,49 +7,85 @@ import Container from "@mui/material/Container";
 import { FormControl, FormLabel, MenuItem, Select } from "@mui/material";
 import SimpleSnackbar from "../components/snackbar";
 import { useSelector } from "react-redux";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function CreateMessage() {
-  const [message, setMessage] = useState("");
-  const [location, setLocation] = useState([]);
-  const [shortcode, setShortCode] = React.useState({ short_code: "" });
+  const [message, setMessage] = React.useState("");
+  const [location, setLocation] = React.useState([]);
+  const [shortcode, setShortCode] = React.useState("");
   const [shortcodes, setShortCodes] = React.useState([]);
   const [areas, setAreas] = React.useState([]);
-  const [showSnack, setShowSnack] = React.useState();
+  const [loading, setLoading] = React.useState(false);
+  const [showSnack, setShowSnack] = React.useState(false);
+  const getCodes = useMutation(api.files.getShortcodes);
   const { user } = useSelector((state) => state.user);
-
+  const area = useQuery(api.locations.getLocations);
   useEffect(() => {
-    if (user.name) {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/${user.name}/shortcodes`)
-        .then((res) => res.json())
-        .then((data) => setShortCodes(data?.short_codes));
-      fetch(`${import.meta.env.VITE_APP_API_URL}/areas`)
-        .then((res) => res.json())
-        .then((data) => setAreas(data));
-    }
-  }, [user]);
+    const fetchData = async () => {
+      try {
+        // Await the result of the useQuery hook
+        const result = await area;
+        // Update the state with the fetched data
+        setAreas(result);
+        setLoading(false); // Set loading to false after data is fetched
+      } catch (error) {
+        console.error("Error fetching areas:", error);
+        setLoading(false); // Set loading to false in case of error
+      }
+    };
+
+    // Call the fetchData function
+    fetchData();
+  }, [area]); // Ensure useEffect runs whenever 'area' changes
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      const result = await getCodes({ organizationId: user._id });
+      setShortCodes(result);
+      setLoading(false);
+    };
+    fetchData();
+  }, [getCodes, user._id]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (shortcode.short_code && message && location.length) {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/${user.name}/message/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+    if (shortcode && message && location.length) {
+      const nums = areas.map((num) => num.numbers);
+      try {
+        const formData = {
           content: message,
-          shortcode: shortcode.short_code,
-          areas: location,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setShowSnack(data.msg ? true : false);
-        });
+          shortcode: shortcode,
+          areas: nums,
+        };
+        const response = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/${user.name}/message/add`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to send message");
+        }
+
+        const data = await response.json();
+        setShowSnack(data.msg ? true : false);
+      } catch (error) {
+        console.log(message);
+        console.log(shortcode);
+        console.log(nums);
+        console.error("Error sending message:", error);
+        // Handle error, show error message, etc.
+      }
     }
-    setLocation([]);
-    setShortCode("");
-    setMessage("");
+    // setLocation([]);
+    // setShortCode("");
+    // setMessage("");
   };
 
   const handleChange = (event) => {
@@ -59,11 +95,8 @@ export default function CreateMessage() {
     setLocation(typeof value === "string" ? value.split(",") : value);
   };
 
-  const handleShortCodeChange = async (e) => {
-    const shortcode = shortcodes.find(
-      (code) => code.short_code === e.target.value
-    );
-    setShortCode(shortcode);
+  const handleShortCodeChange = (event) => {
+    setShortCode(event.target.value);
   };
 
   return (
@@ -82,7 +115,7 @@ export default function CreateMessage() {
           <FormControl fullWidth margin="normal">
             <FormLabel>Choose shortcode</FormLabel>
             <Select
-              value={shortcode.short_code}
+              value={shortcode}
               onChange={handleShortCodeChange}
               fullWidth
               required
@@ -117,7 +150,7 @@ export default function CreateMessage() {
               fullWidth
               required
             >
-              {areas.map((area) => (
+              {areas?.map((area) => (
                 <MenuItem key={area.name} value={area.name}>
                   {area.name}
                 </MenuItem>

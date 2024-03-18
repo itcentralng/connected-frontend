@@ -48,11 +48,9 @@ export const getOrganizations = mutation({
     }
 
     const organization = organizations[0];
-    console.log(organization);
     if (organization.password === password) {
       return organization; // Return organization information if credentials are valid
     } else {
-      console.log(organizations);
       throw new Error("Invalid email or password"); // Throw error if credentials are invalid
     }
   },

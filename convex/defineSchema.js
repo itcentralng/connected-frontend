@@ -9,4 +9,14 @@ export default defineSchema({
     name: v.string(),
     password: v.string(),
   }),
+  files: defineTable({
+    file: v.string(),
+    organizationId: v.id("organizations"),
+    organizationName: v.string(),
+    shortcode: v.string(),
+  }),
+  locations: defineTable({
+    name: v.string(),
+    numbers: v.string(),
+  }),
 });

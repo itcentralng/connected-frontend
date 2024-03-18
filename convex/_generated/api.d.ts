@@ -15,6 +15,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as defineSchema from "../defineSchema.js";
+import type * as files from "../files.js";
+import type * as locations from "../locations.js";
 import type * as organization from "../organization.js";
 
 /**
@@ -27,6 +29,8 @@ import type * as organization from "../organization.js";
  */
 declare const fullApi: ApiFromModules<{
   defineSchema: typeof defineSchema;
+  files: typeof files;
+  locations: typeof locations;
   organization: typeof organization;
 }>;
 export declare const api: FilterApi<
