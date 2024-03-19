@@ -6,8 +6,6 @@ The SMS functionality would ensure even those in remote, rural localities withou
 
 By partnering both information providers and citizens on one cohesive platform, ConnectED could virtually extend the reach of institutional messaging far beyond what traditional in-person community outreach allows.
 
-**_Note:_** We used render to host both our frontend and backend. Due to render's transient data policy for free accounts, our SQLite database is lost when our service runs down due to inactivity. For that reason our project is best run on a paid account or on localhost.
-
 ## Tools used
 
 **Cohere and Langchain:** Our large language model through Langchain to give personalized responses
@@ -60,6 +58,4 @@ By partnering both information providers and citizens on one cohesive platform, 
 
 **_Note:_** To see the message sent from the frontend dashboard you need to use [AfricasTalking simulator](https://developers.africastalking.com/simulator) (Use one of the numbers from the `insert_dummy_data()` function, which can be found in the backend's `utils/db.py` file.)
 
-### NOTE
-
-At the time of submission, the Africastalking API we are using is facing downtime and does not work
+**_Note:_** At the time of submission, the Africastalking API we are using is facing downtime and does not work
