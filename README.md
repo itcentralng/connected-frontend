@@ -16,8 +16,6 @@ By partnering both information providers and citizens on one cohesive platform, 
 
 **FastAPI:** Our web framework for building APIs in python
 
-**SQLite:** Our database for keeping organization information and other related data.
-
 **ReactJS:** Our JavaScript frontend framework for the user dashboard.
 
 ## Datasets
@@ -53,15 +51,15 @@ By partnering both information providers and citizens on one cohesive platform, 
 
 ### The FrontEnd
 
-1. Clone the frontend repo `git clone https://github.com/itcentralng/Connected-Frontend.git`
-2. Install the project dependencies `npm install --legacy-peer-deps`
+1. Clone the frontend repo `git clone https://github.com/itcentralng/connected-frontend.git`
+2. Install the project dependencies `npm install`
 3. Copy the contents of .env.example file into a new file .env and add in your APIs (backend's) URL
 4. Run it `npm start`
-5. Go to http://localhost:3000/
+5. Open another terminal and run `npx convex dev`
+6. Go to http://localhost:3000/
 
-**_Note:_** To see the message sent from the frontend dashboard you need to use [AfricasTalking simulator](https://developers.africastalking.com/simulator) (Use one of the numbers from the `insert_dummy_data()` function, which can be found in the backend's `utils/db.py` file.
+**_Note:_** To see the message sent from the frontend dashboard you need to use [AfricasTalking simulator](https://developers.africastalking.com/simulator) (Use one of the numbers from the `insert_dummy_data()` function, which can be found in the backend's `utils/db.py` file.)
 
-## To Dos
+### NOTE
 
-1. We will use an ORM instead of an SQLite client.
-2. Do a lot of code refactoring.
+At the time of submission, the Africastalking API we are using is facing downtime and does not work
