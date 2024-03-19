@@ -58,4 +58,4 @@ By partnering both information providers and citizens on one cohesive platform, 
 
 **_Note:_** To see the message sent from the frontend dashboard you need to use [AfricasTalking simulator](https://developers.africastalking.com/simulator) (Use one of the numbers from the `insert_dummy_data()` function, which can be found in the backend's `utils/db.py` file.)
 
-**_Note:_** At the time of submission, the Africastalking API we are using is facing downtime and does not work
+**_Note:_** At the time of submission, the Africastalking API we are using is facing downtime and does not work due to the network outage caused by undersea cable.
