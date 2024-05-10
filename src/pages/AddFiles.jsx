@@ -36,6 +36,7 @@ export default function AddFiles() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("shortcode", shortcode);
+      formData.append("organization_id", user.id);
       fetch(
         `${import.meta.env.VITE_APP_API_URL}/organization/${
           user.name
