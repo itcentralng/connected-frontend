@@ -11,7 +11,7 @@ function Layout() {
   if (user === null) {
     return <Navigate to="/login" />;
   }
-  const drawerWidth = 240;
+  const drawerWidth = 241;
 
   return (
     <Box sx={{ display: "flex" }}>
