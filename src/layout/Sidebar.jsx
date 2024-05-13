@@ -17,7 +17,7 @@ import {
   ExitToApp,
 } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { logout } from "../store/user.slice";
+import { userActions } from "../store/user.slice";
 
 const Sidebar = ({ drawerWidth }) => {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const Sidebar = ({ drawerWidth }) => {
   ];
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(userActions.logout());
     navigate("/login");
   };
 

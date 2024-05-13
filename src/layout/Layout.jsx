@@ -7,8 +7,8 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 function Layout() {
-  const { isAuth } = useSelector((state) => state.user);
-  if (!isAuth) {
+  const user = useSelector((state) => state.user.user);
+  if (user === null) {
     return <Navigate to="/login" />;
   }
   const drawerWidth = 240;

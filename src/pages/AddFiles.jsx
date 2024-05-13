@@ -17,6 +17,7 @@ export default function AddFiles() {
   const [file, setFile] = React.useState("");
   const [shortcode, setShortCode] = React.useState("");
   const [addedFile, setAddedFile] = React.useState();
+  const [loading, setLoading] = React.useState(false);
   const { user } = useSelector((state) => state.user);
 
   const handleFileChange = async (e) => {
@@ -30,24 +31,36 @@ export default function AddFiles() {
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (file && shortcode) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("shortcode", shortcode);
-      formData.append("organization_id", user.id);
-      fetch(
-        `${import.meta.env.VITE_APP_API_URL}/organization/${
-          user.name
-        }/uploadfile`,
-        {
-          method: "POST",
-          body: formData,
+    try {
+      setLoading(true);
+      if (file && shortcode) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("shortcode", shortcode);
+        formData.append("organization_id", user.id);
+        const response = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/organization/${
+            user.name
+          }/uploadfile`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => setAddedFile(data));
+
+        if (!response.ok) {
+          alert("Failed to add file! Please try again");
+          throw new Error("Failed to add file");
         }
-      )
-        .then((res) => res.json())
-        .then((data) => setAddedFile(data));
+      }
+    } catch (error) {
+      console.error("Error adding file", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,12 +110,12 @@ export default function AddFiles() {
           <Button
             type="submit"
             fullWidth
-            // loading variant="outlined"
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={handleFormSubmit}
+            disabled={loading}
           >
-            Add
+            {loading ? <CircularProgress size={22} /> : "Add"}
           </Button>
         </Box>
       </Box>

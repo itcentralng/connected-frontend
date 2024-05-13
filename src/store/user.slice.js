@@ -10,9 +10,9 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      state.isAuth = true;
       state.user = action.payload;
-      console.log(action.payload);
+      state.isAuth = true;
+      // console.log(action.payload);
       sessionStorage.setItem("userState", JSON.stringify(state));
     },
     logout: (state) => {
@@ -23,6 +23,6 @@ export const userSlice = createSlice({
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const userActions = userSlice.actions;
 
 export default userSlice.reducer;
