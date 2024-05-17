@@ -13,12 +13,12 @@ const Files = () => {
   const { user } = useSelector((state) => state.user);
   const [files, setFiles] = useState([]);
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_APP_API_URL}/${user.id}/files/`)
+    fetch(`${import.meta.env.VITE_APP_API_URL}/${user.id}/files`)
       .then((res) => res.json())
       .then((data) => {
         setFiles(data);
       });
-  }, []);
+  }, [user.id]);
 
   return (
     <div>

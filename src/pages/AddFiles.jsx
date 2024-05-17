@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 export default function AddFiles() {
   const [file, setFile] = React.useState("");
   const [shortcode, setShortCode] = React.useState("");
-  const [addedFile, setAddedFile] = React.useState();
+  const [addedFile, setAddedFile] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const { user } = useSelector((state) => state.user);
 
@@ -35,28 +35,25 @@ export default function AddFiles() {
     e.preventDefault();
     try {
       setLoading(true);
-      if (file && shortcode) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("shortcode", shortcode);
-        formData.append("organization_id", user.id);
-        const response = await fetch(
-          `${import.meta.env.VITE_APP_API_URL}/organization/${
-            user.name
-          }/uploadfile`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => setAddedFile(data));
-
-        if (!response.ok) {
-          alert("Failed to add file! Please try again");
-          throw new Error("Failed to add file");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("shortcode", shortcode);
+      formData.append("organization_id", user.id);
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_API_URL}/organization/${
+          user.name
+        }/uploadfile`,
+        {
+          method: "POST",
+          body: formData,
         }
+      );
+
+      if (!response.ok) {
+        alert("Failed to add file! Please try again");
+        throw new Error("Failed to add file");
       }
+      setAddedFile(true);
     } catch (error) {
       console.error("Error adding file", error.message);
     } finally {
@@ -90,7 +87,7 @@ export default function AddFiles() {
                 fullWidth
                 required
               />
-              {false && <CircularProgress />}
+              {false && <CircularProgress size={22} />}
             </Stack>
           </FormControl>
           <FormControl fullWidth margin="normal">
@@ -104,7 +101,7 @@ export default function AddFiles() {
                 fullWidth
                 required
               />
-              {false && <CircularProgress />}
+              {false && <CircularProgress size={22} />}
             </Stack>
           </FormControl>
           <Button

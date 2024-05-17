@@ -1,21 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import { FormControl, FormLabel, MenuItem, Select } from "@mui/material";
+import {
+  CircularProgress,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import SimpleSnackbar from "../components/snackbar";
 import { useSelector } from "react-redux";
+import * as yup from "yup";
+import { useFormik } from "formik";
 
-export default function CreateMessage() {
-  const [message, setMessage] = useState("");
-  const [location, setLocation] = useState([]);
-  const [shortcode, setShortCode] = React.useState({ short_code: "" });
+const validationSchema = yup.object({
+  shortcode: yup.string().required("Please select a shortcode"),
+  message: yup.string().required("Please enter a message"),
+  location: yup.array().min(1, "Please select atleast one area"),
+});
+
+function CreateMessage() {
   const [shortcodes, setShortCodes] = React.useState([]);
   const [areas, setAreas] = React.useState([]);
   const [showSnack, setShowSnack] = React.useState();
   const { user } = useSelector((state) => state.user);
+  const [loading, setLoading] = React.useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      shortcode: "",
+      message: "",
+      location: [],
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      handleSubmit(values);
+    },
+  });
 
   useEffect(() => {
     if (user.name) {
@@ -28,42 +52,35 @@ export default function CreateMessage() {
     }
   }, [user]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (shortcode.short_code && message && location.length) {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/${user.name}/message/add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: message,
-          shortcode: shortcode.short_code,
-          areas: location,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setShowSnack(data.msg ? true : false);
-        });
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_API_URL}/${user.name}/message/add`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: values.message,
+            shortcode: values.shortcode,
+            areas: values.location,
+          }),
+        }
+      );
+      if (!response.ok) {
+        alert("Failed to send message! Please try again");
+        throw new Error("Failed to send message");
+      }
+      setShowSnack(true);
+      setLoading(false);
+    } catch (error) {
+      console.error(error.message);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
-    // setLocation([]);
-    // setShortCode("");
-    // setMessage("");
-  };
-
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setLocation(typeof value === "string" ? value.split(",") : value);
-  };
-
-  const handleShortCodeChange = async (e) => {
-    const shortcode = shortcodes.find(
-      (code) => code.short_code === e.target.value
-    );
-    setShortCode(shortcode);
   };
 
   return (
@@ -78,14 +95,16 @@ export default function CreateMessage() {
         }}
       >
         {showSnack ? <SimpleSnackbar message="Message sent" /> : null}
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
           <FormControl fullWidth margin="normal">
             <FormLabel>Choose shortcode</FormLabel>
             <Select
-              value={shortcode.short_code}
-              onChange={handleShortCodeChange}
+              value={formik.values.shortcode}
+              onChange={formik.handleChange}
               fullWidth
               required
+              name="shortcode"
+              id="shortcode"
             >
               {shortcodes?.map((code, i) => (
                 <MenuItem key={i} value={code.short_code}>
@@ -93,29 +112,40 @@ export default function CreateMessage() {
                 </MenuItem>
               ))}
             </Select>
+            {formik.touched.shortcode && formik.errors.shortcode && (
+              <div>{formik.errors.shortcode}</div>
+            )}
           </FormControl>
           <FormControl fullWidth margin="normal">
             <FormLabel>Message</FormLabel>
             <TextField
               placeholder="message"
               name="message"
+              id="message"
               multiline
               minRows={3}
               required
               fullWidth
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              value={formik.values.message}
+              onChange={formik.handleChange}
+              error={formik.touched.message && Boolean(formik.errors.message)}
             />
+            {formik.touched.message && formik.errors.message && (
+              <div>{formik.errors.message}</div>
+            )}
           </FormControl>
 
           <FormControl fullWidth margin="normal">
             <FormLabel>Area</FormLabel>
             <Select
-              value={location}
+              name="location"
+              id="location"
+              value={formik.values.location}
               multiple
-              onChange={handleChange}
+              onChange={formik.handleChange}
               fullWidth
               required
+              error={formik.touched.location && Boolean(formik.errors.location)}
             >
               {areas.map((area) => (
                 <MenuItem key={area.name} value={area.name}>
@@ -123,17 +153,23 @@ export default function CreateMessage() {
                 </MenuItem>
               ))}
             </Select>
+            {formik.touched.location && formik.errors.location && (
+              <div>{formik.errors.location}</div>
+            )}
           </FormControl>
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={loading}
           >
-            Send
+            {loading ? <CircularProgress size={22} /> : "Send"}
           </Button>
         </Box>
       </Box>
     </Container>
   );
 }
+
+export default CreateMessage;

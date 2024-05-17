@@ -17,7 +17,7 @@ import {
   ExitToApp,
 } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { userActions } from "../store/user.slice";
+import { userActions } from "../store/user_slice";
 
 const Sidebar = ({ drawerWidth }) => {
   const navigate = useNavigate();

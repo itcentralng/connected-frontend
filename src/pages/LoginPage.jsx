@@ -12,23 +12,27 @@ import {
   Box,
   CircularProgress,
   FormControl,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useDispatch } from "react-redux";
-import { userActions } from "../store/user.slice";
+import { userActions } from "../store/user_slice";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const validationSchema = yup.object({
   email: yup
-    .string("Enter your email")
-    .email("Enter a valid email")
+    .string("Enter organization email")
+    .email("Enter a valid email address")
     .required("Email is required"),
-  password: yup.string("Enter your password").required("Password is required"),
+  password: yup.string("Enter password").required("Password is required"),
 });
 
 const LoginPage = () => {
   const [loading, setLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -67,7 +71,6 @@ const LoginPage = () => {
       }
       const user = await response.json();
       delete user.password;
-      // console.log("Form submitted successfully");
       dispatch(userActions.login(user));
       navigate("/addfile");
     } catch (error) {
@@ -139,7 +142,7 @@ const LoginPage = () => {
                 fullWidth
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formik.values.password}
                 placeholder="password"
                 onChange={formik.handleChange}
@@ -148,6 +151,20 @@ const LoginPage = () => {
                   formik.touched.password && Boolean(formik.errors.password)
                 }
                 helperText={formik.touched.password && formik.errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment
+                      position="end"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      <IconButton
+                        onClick={() => setShowPassword((show) => !show)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
                 sx={{ height: "77px", mt: "10px" }}
               />
               <Button

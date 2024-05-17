@@ -18,7 +18,7 @@ const Messages = () => {
       .then((data) => {
         setMessages(data);
       });
-  }, []);
+  }, [user.name]);
 
   return (
     <div>
