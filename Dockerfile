@@ -13,6 +13,9 @@ RUN npm install
 COPY . .
 
 # Set environment variable for the Vite application
+ARG VITE_APP_API_URL
+
+
 ENV VITE_APP_API_URL=$VITE_APP_API_URL
 
 # Build the application
