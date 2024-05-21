@@ -1,27 +1,28 @@
-# build environment
 FROM node:latest as build
-WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
-COPY . ./
 
-# set env
-ARG VITE_APP_API_URL
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files to the working directory
+COPY package*.json ./
+
+# Install the dependencies
+RUN npm install
+
+# Copy the rest of the application code to the working directory
+COPY . .
+
+# Set environment variable for the Vite application
 ENV VITE_APP_API_URL=$VITE_APP_API_URL
 
-
-RUN echo 'VITE_APP_API_URL = '$VITE_APP_API_URL > .env.production
-
-# run build
+# Build the application
 RUN npm run build
 
+# Install a simple HTTP server to serve the static files
+RUN npm install -g serve
 
-# production environment
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-# new
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Command to run the application
+CMD ["serve", "-s", "dist"]
+
+# Expose the port the app runs on
+EXPOSE 3000
